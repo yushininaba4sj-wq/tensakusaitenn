@@ -1,8 +1,13 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type { SubmissionService } from "@/lib/submissions";
+import { isSupabaseConfigured } from "@/lib/supabase/client";
 
 type SubmitFormProps = {
+  service: SubmissionService;
   title: string;
   placeholder: string;
   tips: string[];
@@ -13,6 +18,7 @@ type SubmitFormProps = {
 };
 
 export function SubmitForm({
+  service,
   title,
   placeholder,
   tips,
@@ -21,8 +27,45 @@ export function SubmitForm({
   submitLabel = "送信する",
   onPreviewSubmit,
 }: SubmitFormProps) {
+  const router = useRouter();
   const [preview, setPreview] = useState<string | null>(null);
+  const [content, setContent] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+
+    if (!isSupabaseConfigured()) {
+      setSubmitted(true);
+      onPreviewSubmit?.();
+      return;
+    }
+
+    setLoading(true);
+    const res = await fetch("/api/submissions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ service, content, title }),
+    });
+    setLoading(false);
+
+    if (res.status === 401) {
+      router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      setError(json.error ?? "送信に失敗しました");
+      return;
+    }
+
+    setSubmitted(true);
+    onPreviewSubmit?.();
+  }
 
   return (
     <div className="rounded-2xl border border-[var(--line)] bg-white p-6 shadow-sm">
@@ -35,19 +78,14 @@ export function SubmitForm({
           ))}
         </ul>
       </div>
-      <form
-        className="mt-5 space-y-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setSubmitted(true);
-          onPreviewSubmit?.();
-        }}
-      >
+      <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
         {extraFields}
         <label className="block">
           <span className="text-sm font-semibold">内容</span>
           <textarea
             required
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
             className="mt-2 w-full min-h-[120px] rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
             placeholder={placeholder}
           />
@@ -79,17 +117,28 @@ export function SubmitForm({
             />
           )}
         </label>
+        {error && <p className="text-sm text-[var(--accent)]">{error}</p>}
         <button
           type="submit"
-          className="w-full rounded-xl bg-[var(--accent)] py-3 text-sm font-bold text-white"
+          disabled={loading || submitted}
+          className="w-full rounded-xl bg-[var(--accent)] py-3 text-sm font-bold text-white disabled:opacity-60"
         >
-          {submitted ? "受付しました（デモ）" : submitLabel}
+          {loading
+            ? "送信中…"
+            : submitted
+              ? "受付しました"
+              : submitLabel}
         </button>
       </form>
       {submitted && (
-        <p className="mt-3 text-center text-xs text-[var(--muted)]">
-          リリース記念キャンペーン中のため無料。24時間以内を目安に返却します。
-        </p>
+        <div className="mt-3 space-y-2 text-center text-xs text-[var(--muted)]">
+          <p>24時間以内を目安に返却します。</p>
+          {isSupabaseConfigured() && (
+            <Link href="/mypage" className="font-bold text-[var(--accent)]">
+              マイページで返答を確認 →
+            </Link>
+          )}
+        </div>
       )}
     </div>
   );

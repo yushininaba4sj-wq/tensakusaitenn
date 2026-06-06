@@ -34,6 +34,7 @@ export default function KakomonPage() {
         ]}
       />
       <SubmitForm
+        service="kakomon"
         title="過去問答案を提出する"
         placeholder="大学名、年度、教科、知りたいこと（配点・採点・傾向など）を書いてください。"
         tips={[

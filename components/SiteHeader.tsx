@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AuthLinks } from "@/components/AuthLinks";
 import { SenpaiBrandName, SenpaiLink } from "@/components/SenpaiLink";
 import { SITE } from "@/lib/services";
 
@@ -10,7 +11,8 @@ export function SiteHeader() {
           {SITE.name}
         </Link>
         <div className="flex items-center gap-2">
-          <SenpaiLink className="rounded-full border border-[var(--line)] px-3 py-2 text-[11px]">
+          <AuthLinks />
+          <SenpaiLink className="hidden rounded-full border border-[var(--line)] px-3 py-2 text-[11px] sm:inline-block">
             <SenpaiBrandName />
           </SenpaiLink>
           <Link

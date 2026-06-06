@@ -9,6 +9,7 @@
   --surface: #ffffff;
   --line: rgba(26, 31, 46, 0.08);
   --senpai: #00b7d7;
+  --senpai-dark: #0092b5;
 }
 
 @theme inline {

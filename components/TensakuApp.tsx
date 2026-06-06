@@ -52,6 +52,7 @@ export function TensakuApp() {
             </p>
           </div>
           <SubmitForm
+            service="tensaku"
             title="小論文を提出する"
             placeholder="大学名、テーマ、字数、本文を書いてください。"
             tips={[
@@ -79,6 +80,7 @@ export function TensakuApp() {
             </p>
           </div>
           <SubmitForm
+            service="tensaku"
             title="英作文を提出する"
             placeholder="大学名・テーマ・語数・本文を書いてください。"
             tips={[
