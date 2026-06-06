@@ -7,7 +7,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--line)] bg-white/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-lg items-center justify-between gap-2 px-4 py-3">
-        <Link href="/" className="shrink-0 font-bold tracking-tight lowercase">
+        <Link href="/" className="shrink-0 text-sm font-bold tracking-tight">
           {SITE.name}
         </Link>
         <div className="flex items-center gap-2">
