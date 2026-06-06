@@ -1,14 +1,15 @@
 export const SITE = {
-  name: "GOUKAKU LINK",
-  nameJa: "GOUKAKU LINK（合格リンク）",
-  alternateNames: ["合格リンク", "ゴウカクリンク", "GOUKAKU LINK"],
+  name: "goukakulink",
+  nameJa: "goukakulink（合格リンク）",
+  alternateNames: ["合格リンク", "ゴウカクリンク", "GOUKAKU LINK", "GOUKAKULINK"],
   tagline: "学習計画・添削・採点・質問",
   description:
     "学習計画づくり、小論文・英作文添削、過去問採点、わからないところの質問ができる大学受験サービス。",
-  seoTitle: "GOUKAKU LINK | 学習計画・英作文・小論文添削・過去問採点",
+  seoTitle: "goukakulink | 学習計画・英作文・小論文添削・過去問採点",
   seoDescription:
-    "学習計画、小論文・英作文添削、過去問採点、わからないところを質問。予備校講師、現役早慶生が対応。リリース記念で今だけ無料。",
+    "goukakulink（合格リンク）。学習計画、小論文・英作文添削、過去問採点、わからないところを質問。予備校講師、現役早慶生が対応。リリース記念で今だけ無料。",
   keywords: [
+    "goukakulink",
     "GOUKAKU LINK",
     "合格リンク",
     "学習計画",

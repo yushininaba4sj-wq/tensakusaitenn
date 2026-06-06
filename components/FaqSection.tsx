@@ -1,4 +1,5 @@
 import { FAQ_ITEMS } from "@/lib/faq";
+import { SITE } from "@/lib/services";
 
 export function FaqSection() {
   return (
@@ -9,7 +10,7 @@ export function FaqSection() {
         </p>
         <h2 className="mt-2 text-2xl font-bold">よくある質問</h2>
         <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">
-          GOUKAKU LINK（合格リンク）の英作文添削・小論文添削・過去問採点について、よくある質問をまとめました。
+          {SITE.nameJa}の英作文添削・小論文添削・過去問採点について、よくある質問をまとめました。
         </p>
         <dl className="mt-8 space-y-4">
           {FAQ_ITEMS.map((item) => (

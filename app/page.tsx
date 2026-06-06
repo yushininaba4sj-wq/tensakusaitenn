@@ -112,7 +112,7 @@ export default function Home() {
       <section className="px-4 py-10">
         <div className="mx-auto max-w-lg rounded-2xl bg-[var(--ink)] px-5 py-8 text-center text-white">
           <h2 className="text-xl font-bold">
-            {CAMPAIGN.active ? "今だけ全サービス無料" : "GOUKAKU LINKで始める"}
+            {CAMPAIGN.active ? "今だけ全サービス無料" : `${SITE.name}で始める`}
           </h2>
           <Link
             href="/plan"

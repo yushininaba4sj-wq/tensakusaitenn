@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { ServiceInfo } from "@/lib/services";
-import { CAMPAIGN, displayPrice } from "@/lib/services";
+import { CAMPAIGN, SITE, displayPrice } from "@/lib/services";
 
 type ServicePageShellProps = {
   service: ServiceInfo;
@@ -13,7 +13,7 @@ export function ServicePageShell({ service, children }: ServicePageShellProps) {
     <main className="px-4 py-8">
       <div className="mx-auto max-w-lg">
         <Link href="/" className="text-sm font-bold text-[var(--accent)]">
-          ← GOUKAKU LINK トップ
+          ← {SITE.name} トップ
         </Link>
         <p className="mt-4 text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
           {service.id}
