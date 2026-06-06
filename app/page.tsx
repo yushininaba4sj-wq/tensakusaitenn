@@ -75,7 +75,7 @@ export default function Home() {
             {[
               {
                 title: "学習計画",
-                body: "志望校・偏差値・試験日を入力 → 今日やるタスクが届く。",
+                body: "参考書の範囲・周回数から1日ノルマを計算。今日やるタスクが届く。",
                 href: "/plan",
               },
               {
