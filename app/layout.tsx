@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
 import { BottomTabs } from "@/components/BottomTabs";
 import { CampaignBanner } from "@/components/CampaignBanner";
 import { JsonLd } from "@/components/JsonLd";
@@ -14,11 +13,6 @@ import {
 } from "@/lib/seo";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   ...buildPageMetadata({
@@ -32,7 +26,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ja" className={`${geistSans.variable} h-full`}>
+    <html lang="ja" className="h-full">
       <head>
         <JsonLd data={[organizationJsonLd(), webSiteJsonLd()]} />
       </head>

@@ -1,4 +1,7 @@
--- goukakulink: 依頼・返答テーブル（SENPAI LINK と同じ Supabase プロジェクトで実行）
+-- goukakulink: 依頼・返答テーブル
+-- 共有 Supabase プロジェクト（SENPAI LINK 本番）に追加のみ実行すること。
+-- 既存テーブル・RLS・Auth 設定は変更しない。
+-- service_role は使わず、anon + RLS で完結。
 
 create table if not exists public.goukakulink_submissions (
   id uuid primary key default gen_random_uuid(),
@@ -25,4 +28,5 @@ create policy "Users insert own submissions"
   on public.goukakulink_submissions for insert
   with check (auth.uid() = user_id);
 
--- 返答の更新は管理者（service role）または Supabase Dashboard から行う想定
+-- UPDATE / DELETE ポリシーなし → 一般ユーザーは自分の行を変更・削除不可
+-- 返答の更新は Supabase Dashboard（管理者）からのみ
