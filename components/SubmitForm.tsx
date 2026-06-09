@@ -15,6 +15,7 @@ type SubmitFormProps = {
   extraFields?: React.ReactNode;
   submitLabel?: string;
   onPreviewSubmit?: () => void;
+  formatSubmission?: (content: string) => { title?: string; content: string };
 };
 
 export function SubmitForm({
@@ -26,6 +27,7 @@ export function SubmitForm({
   extraFields,
   submitLabel = "送信する",
   onPreviewSubmit,
+  formatSubmission,
 }: SubmitFormProps) {
   const router = useRouter();
   const [preview, setPreview] = useState<string | null>(null);
@@ -45,10 +47,15 @@ export function SubmitForm({
     }
 
     setLoading(true);
+    const payload = formatSubmission?.(content) ?? { content };
     const res = await fetch("/api/submissions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ service, content, title }),
+      body: JSON.stringify({
+        service,
+        content: payload.content,
+        title: payload.title ?? title,
+      }),
     });
     setLoading(false);
 

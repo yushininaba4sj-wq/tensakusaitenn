@@ -83,7 +83,7 @@ export const SERVICES: ServiceInfo[] = [
     short: "答案画像を提出して採点",
     tabLabel: "採点",
     price: "¥500",
-    priceNote: "/ 教科〜",
+    priceNote: "/ 科目〜",
     href: "/kakomon",
     features: [
       "総合得点・設問別得点・部分点",
@@ -101,7 +101,7 @@ export const SERVICES: ServiceInfo[] = [
     priceNote: "/ 件〜",
     href: "/qa",
     features: [
-      "英語・数学・国語・理科・社会・小論文・総合型",
+      "英語・数学・国語・物理・化学・生物・地学・日本史・世界史・地理・倫理・政経・小論文・総合型",
       "24時間以内を目安に返信",
       "予備校講師、現役早慶生が回答",
     ],
@@ -130,21 +130,30 @@ export const TAB_NAV: TabItem[] = [
   },
 ];
 
-export const QA_CATEGORIES = [
+export const EXAM_SUBJECTS = [
   "英語",
   "数学",
   "国語",
-  "理科",
-  "社会",
+  "物理",
+  "化学",
+  "生物",
+  "地学",
+  "日本史",
+  "世界史",
+  "地理",
+  "倫理・政経",
   "小論文",
-  "総合型選抜",
 ] as const;
+
+export const QA_CATEGORIES = [...EXAM_SUBJECTS, "総合型選抜"] as const;
+
+export const KAKOMON_SUBJECTS = EXAM_SUBJECTS;
 
 export const SHORONBUN_CRITERIA = [
   "課題理解",
   "構成",
   "論理性",
-  "表現力",
+  "発想力",
   "説得力",
   "誤字脱字",
 ] as const;

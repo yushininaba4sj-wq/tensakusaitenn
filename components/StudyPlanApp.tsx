@@ -13,6 +13,7 @@ import {
   formatMinutes,
   formatHoursDecimal,
 } from "@/lib/planLogic";
+import { EXAM_SUBJECTS } from "@/lib/services";
 
 type PlanInput = {
   school: string;
@@ -24,7 +25,7 @@ type PlanInput = {
   books: string;
 };
 
-const SUBJECTS = ["英語", "数学", "国語", "理科", "社会"] as const;
+const SUBJECTS = EXAM_SUBJECTS;
 
 function daysUntil(dateStr: string): number {
   if (!dateStr) return 0;

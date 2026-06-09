@@ -14,7 +14,7 @@ const MOCK = {
       { label: "課題理解", score: 78 },
       { label: "構成", score: 65 },
       { label: "論理性", score: 72 },
-      { label: "表現力", score: 70 },
+      { label: "発想力", score: 70 },
       { label: "説得力", score: 68 },
       { label: "誤字脱字", score: 85 },
     ],
