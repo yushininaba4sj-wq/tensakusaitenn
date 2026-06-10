@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { SubmissionService } from "@/lib/submissions";
-import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { uploadSubmissionImages } from "@/lib/submissionImages";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 type SubmitFormProps = {
   service: SubmissionService;
@@ -31,6 +32,7 @@ export function SubmitForm({
 }: SubmitFormProps) {
   const router = useRouter();
   const [preview, setPreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [content, setContent] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +49,32 @@ export function SubmitForm({
     }
 
     setLoading(true);
+
+    let imageUrls: string[] = [];
+    let imagePaths: string[] = [];
+
+    if (imageFile) {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setLoading(false);
+        router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+        return;
+      }
+
+      const upload = await uploadSubmissionImages(supabase, user.id, [imageFile]);
+      if (upload.error) {
+        setLoading(false);
+        setError(upload.error);
+        return;
+      }
+      imageUrls = upload.urls;
+      imagePaths = upload.paths;
+    }
+
     const payload = formatSubmission?.(content) ?? { content };
     const res = await fetch("/api/submissions", {
       method: "POST",
@@ -55,6 +83,8 @@ export function SubmitForm({
         service,
         content: payload.content,
         title: payload.title ?? title,
+        image_urls: imageUrls,
+        image_paths: imagePaths,
       }),
     });
     setLoading(false);
@@ -107,8 +137,10 @@ export function SubmitForm({
               const file = e.target.files?.[0];
               if (!file) {
                 setPreview(null);
+                setImageFile(null);
                 return;
               }
+              setImageFile(file);
               const reader = new FileReader();
               reader.onload = () =>
                 setPreview(typeof reader.result === "string" ? reader.result : null);

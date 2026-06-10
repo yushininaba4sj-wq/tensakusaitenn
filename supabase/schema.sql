@@ -9,6 +9,7 @@ create table if not exists public.goukakulink_submissions (
   service text not null check (service in ('tensaku', 'kakomon', 'qa', 'plan')),
   title text,
   content text not null,
+  image_urls text[] not null default '{}',
   status text not null default 'pending' check (status in ('pending', 'answered')),
   response text,
   response_at timestamptz,

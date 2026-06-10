@@ -6,6 +6,7 @@ export type SubmissionRow = {
   service: SubmissionService;
   title: string | null;
   content: string;
+  image_urls?: string[] | null;
   status: "pending" | "answered";
   response: string | null;
   response_at: string | null;

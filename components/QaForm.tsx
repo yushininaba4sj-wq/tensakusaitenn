@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { QA_CATEGORIES } from "@/lib/services";
-import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { uploadSubmissionImages } from "@/lib/submissionImages";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 type QaFormProps = {
   title: string;
@@ -14,6 +15,8 @@ export function QaForm({ title }: QaFormProps) {
   const router = useRouter();
   const [category, setCategory] = useState<string>(QA_CATEGORIES[0]);
   const [content, setContent] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +31,32 @@ export function QaForm({ title }: QaFormProps) {
     }
 
     setLoading(true);
+
+    let imageUrls: string[] = [];
+    let imagePaths: string[] = [];
+
+    if (imageFile) {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setLoading(false);
+        router.push("/login?next=/qa");
+        return;
+      }
+
+      const upload = await uploadSubmissionImages(supabase, user.id, [imageFile]);
+      if (upload.error) {
+        setLoading(false);
+        setError(upload.error);
+        return;
+      }
+      imageUrls = upload.urls;
+      imagePaths = upload.paths;
+    }
+
     const res = await fetch("/api/submissions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -35,6 +64,8 @@ export function QaForm({ title }: QaFormProps) {
         service: "qa",
         title: `わからない質問（${category}）`,
         content: `【${category}】\n${content}`,
+        image_urls: imageUrls,
+        image_paths: imagePaths,
       }),
     });
     setLoading(false);
@@ -95,7 +126,28 @@ export function QaForm({ title }: QaFormProps) {
             type="file"
             accept="image/*"
             className="mt-2 block w-full text-sm file:mr-3 file:rounded-full file:border-0 file:bg-[var(--accent)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) {
+                setImageFile(null);
+                setPreview(null);
+                return;
+              }
+              setImageFile(file);
+              const reader = new FileReader();
+              reader.onload = () =>
+                setPreview(typeof reader.result === "string" ? reader.result : null);
+              reader.readAsDataURL(file);
+            }}
           />
+          {preview && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={preview}
+              alt="プレビュー"
+              className="mt-3 max-h-48 rounded-lg border border-[var(--line)]"
+            />
+          )}
         </label>
         {error && <p className="text-sm text-[var(--accent)]">{error}</p>}
         <button

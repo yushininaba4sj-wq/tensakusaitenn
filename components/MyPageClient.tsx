@@ -137,6 +137,26 @@ export function MyPageClient() {
               <p className="mt-3 text-sm text-[var(--muted)] whitespace-pre-wrap">
                 {item.content}
               </p>
+              {item.image_urls && item.image_urls.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {item.image_urls.map((url) => (
+                    <a
+                      key={url}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block overflow-hidden rounded-lg border border-[var(--line)]"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={url}
+                        alt="添付画像"
+                        className="max-h-40 w-auto object-cover"
+                      />
+                    </a>
+                  ))}
+                </div>
+              )}
               <p className="mt-2 text-[10px] text-[var(--muted)]">
                 依頼: {formatDate(item.created_at)}
               </p>

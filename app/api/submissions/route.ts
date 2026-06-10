@@ -1,6 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
+import { syncToSenpaiServiceRequests } from "@/lib/senpaiSync";
 import { SERVICE_LABELS, type SubmissionService } from "@/lib/submissions";
 import { NextResponse } from "next/server";
+
+function parseStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === "string" && item.length > 0);
+}
 
 export async function GET() {
   const supabase = await createClient();
@@ -39,6 +45,8 @@ export async function POST(request: Request) {
   const service = body.service as SubmissionService;
   const content = String(body.content ?? "").trim();
   const title = body.title ? String(body.title) : SERVICE_LABELS[service];
+  const imageUrls = parseStringArray(body.image_urls);
+  const imagePaths = parseStringArray(body.image_paths);
 
   if (!service || !(service in SERVICE_LABELS)) {
     return NextResponse.json({ error: "不正なサービスです" }, { status: 400 });
@@ -55,6 +63,7 @@ export async function POST(request: Request) {
       service,
       title,
       content,
+      image_urls: imageUrls,
       status: "pending",
     })
     .select()
@@ -62,6 +71,27 @@ export async function POST(request: Request) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  const syncResult = await syncToSenpaiServiceRequests(supabase, {
+    userId: user.id,
+    service,
+    title,
+    content,
+    imageUrls,
+    imagePaths,
+  });
+
+  if (syncResult.error) {
+    return NextResponse.json(
+      {
+        error:
+          "依頼は保存しましたが、管理者画面への連携に失敗しました。友達（管理者）に連絡してください。",
+        submission: data,
+        syncError: syncResult.error,
+      },
+      { status: 502 },
+    );
   }
 
   return NextResponse.json({ submission: data });
