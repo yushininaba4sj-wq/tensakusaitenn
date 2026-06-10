@@ -15,7 +15,9 @@ export function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [mode, setMode] = useState<"password" | "magic">("password");
+  const [otpSent, setOtpSent] = useState(false);
   const [message, setMessage] = useState<string | null>(
     authError ? "ログインに失敗しました。もう一度お試しください。" : null,
   );
@@ -62,6 +64,7 @@ export function LoginForm() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
+        shouldCreateUser: false,
         emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
       },
     });
@@ -70,7 +73,30 @@ export function LoginForm() {
       setMessage(error.message);
       return;
     }
-    setMessage("メールを送信しました。届いたリンクからログインしてください。");
+    setOtpSent(true);
+    setOtpCode("");
+    setMessage(
+      "メールを送信しました。届いた6桁のコードを入力するか、メール内のリンクを開いてログインしてください。",
+    );
+  }
+
+  async function handleVerifyOtp(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setMessage(null);
+    const supabase = createClient();
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token: otpCode.trim(),
+      type: "email",
+    });
+    setLoading(false);
+    if (error) {
+      setMessage("コードが正しくないか、期限切れです。もう一度お試しください。");
+      return;
+    }
+    router.push(next);
+    router.refresh();
   }
 
   return (
@@ -84,7 +110,12 @@ export function LoginForm() {
       <div className="mt-4 flex rounded-xl border border-[var(--line)] bg-[var(--bg)] p-1">
         <button
           type="button"
-          onClick={() => setMode("password")}
+          onClick={() => {
+            setMode("password");
+            setOtpSent(false);
+            setOtpCode("");
+            setMessage(null);
+          }}
           className={`flex-1 rounded-lg py-2 text-xs font-bold ${
             mode === "password" ? "bg-white shadow-sm" : "text-[var(--muted)]"
           }`}
@@ -93,18 +124,29 @@ export function LoginForm() {
         </button>
         <button
           type="button"
-          onClick={() => setMode("magic")}
+          onClick={() => {
+            setMode("magic");
+            setOtpSent(false);
+            setOtpCode("");
+            setMessage(null);
+          }}
           className={`flex-1 rounded-lg py-2 text-xs font-bold ${
             mode === "magic" ? "bg-white shadow-sm" : "text-[var(--muted)]"
           }`}
         >
-          メールリンク
+          メール認証
         </button>
       </div>
 
       <form
         className="mt-5 space-y-4"
-        onSubmit={mode === "password" ? handlePasswordLogin : handleMagicLink}
+        onSubmit={
+          mode === "password"
+            ? handlePasswordLogin
+            : otpSent
+              ? handleVerifyOtp
+              : handleMagicLink
+        }
       >
         <label className="block">
           <span className="text-sm font-semibold">メールアドレス</span>
@@ -112,7 +154,8 @@ export function LoginForm() {
             required
             type="email"
             autoComplete="email"
-            className="mt-2 w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm"
+            readOnly={mode === "magic" && otpSent}
+            className="mt-2 w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm disabled:opacity-70"
             placeholder="SENPAI LINKと同じメール"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -133,9 +176,27 @@ export function LoginForm() {
           </label>
         )}
 
+        {mode === "magic" && otpSent && (
+          <label className="block">
+            <span className="text-sm font-semibold">6桁の認証コード</span>
+            <input
+              required
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              pattern="[0-9]{6}"
+              maxLength={6}
+              className="mt-2 w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-center text-lg tracking-[0.3em] font-bold"
+              placeholder="000000"
+              value={otpCode}
+              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+            />
+          </label>
+        )}
+
         {message && (
           <p
-            className={`text-sm ${message.includes("送信") ? "text-[var(--senpai-dark)]" : "text-[var(--accent)]"}`}
+            className={`text-sm ${message.includes("送信") || message.includes("コード") ? "text-[var(--senpai-dark)]" : "text-[var(--accent)]"}`}
           >
             {message}
           </p>
@@ -146,8 +207,29 @@ export function LoginForm() {
           disabled={loading}
           className="w-full rounded-xl bg-[var(--accent)] py-3.5 text-sm font-bold text-white disabled:opacity-60"
         >
-          {loading ? "送信中…" : mode === "password" ? "ログイン" : "ログインリンクを送る"}
+          {loading
+            ? "送信中…"
+            : mode === "password"
+              ? "ログイン"
+              : otpSent
+                ? "コードでログイン"
+                : "認証コードを送る"}
         </button>
+
+        {mode === "magic" && otpSent && (
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => {
+              setOtpSent(false);
+              setOtpCode("");
+              setMessage(null);
+            }}
+            className="w-full text-xs font-bold text-[var(--muted)]"
+          >
+            メールアドレスを変更 / コードを再送する
+          </button>
+        )}
       </form>
 
       <p className="mt-4 text-center text-xs text-[var(--muted)]">
