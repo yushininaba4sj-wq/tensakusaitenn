@@ -108,23 +108,28 @@ export const SERVICES: ServiceInfo[] = [
   },
 ];
 
+export type TabIconName = "home" | "plan" | "tensaku" | "kakomon" | "qa" | "senpai";
+
 export type TabItem = {
   href: string;
   label: string;
+  icon: TabIconName;
   external?: boolean;
   match: (pathname: string) => boolean;
 };
 
 export const TAB_NAV: TabItem[] = [
-  { href: "/", label: "ホーム", match: (p) => p === "/" },
+  { href: "/", label: "ホーム", icon: "home", match: (p) => p === "/" },
   ...SERVICES.map((s) => ({
     href: s.href,
     label: s.tabLabel,
+    icon: s.id as TabIconName,
     match: (p: string) => p.startsWith(s.href),
   })),
   {
     href: SITE.senpaiLink,
     label: "先輩",
+    icon: "senpai",
     external: true,
     match: () => false,
   },

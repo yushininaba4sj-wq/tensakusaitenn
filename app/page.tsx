@@ -37,10 +37,11 @@ export default function Home() {
             {SITE.tagline}
           </p>
 
-          <h1 className="mt-4 text-[36px] font-bold leading-[1.2] tracking-tight md:text-[48px]">
-            学習計画から
-            <br />
-            添削・採点・質問まで。
+          <h1 className="mt-4 text-[28px] font-bold leading-[1.16] tracking-tight sm:text-[32px] md:text-[48px]">
+            <span className="block">学習計画から</span>
+            <span className="block sm:hidden">添削・採点・</span>
+            <span className="block sm:hidden">質問まで。</span>
+            <span className="hidden sm:block">添削・採点・質問まで。</span>
           </h1>
 
           <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-[var(--muted)] md:text-[16px]">
@@ -63,9 +64,9 @@ export default function Home() {
             </Link>
           </div>
 
-          <SenpaiLink className="mt-6 flex items-center justify-between rounded-xl border border-[var(--line)] bg-[var(--bg-sub)] px-5 py-4 text-[14px] font-bold transition hover:border-[var(--accent)]/25">
-            <span className="text-[var(--ink)]">同じ境遇の先輩に相談</span>
-            <span className="text-[var(--muted)]">
+          <SenpaiLink className="mt-6 flex items-center justify-between gap-3 rounded-xl border border-[var(--line)] bg-[var(--bg-sub)] px-5 py-4 text-[14px] font-bold transition hover:border-[var(--accent)]/25">
+            <span className="min-w-0 text-[var(--ink)]">同じ境遇の先輩に相談</span>
+            <span className="shrink-0 whitespace-nowrap text-[var(--muted)]">
               <SenpaiBrandName /> →
             </span>
           </SenpaiLink>
@@ -75,9 +76,9 @@ export default function Home() {
       {/* ↓ デザイン修正: サービス一覧 */}
       <section className="bg-[var(--bg-sub)] px-4 py-14 md:py-16" id="services">
         <div className="mx-auto max-w-lg md:max-w-2xl">
-          <h2 className="text-[24px] font-bold md:text-[28px]">サービス</h2>
-          <p className="mt-3 text-[13px] text-[var(--muted)] md:text-[14px]">
-            下のタブからすぐ移動できます。
+          <h2 className="text-[24px] font-bold md:text-[28px]">サービス一覧</h2>
+          <p className="mt-3 max-w-[17rem] text-[13px] leading-relaxed text-[var(--muted)] md:max-w-none md:text-[14px]">
+            必要なものだけ、必要なタイミングで使えます。
           </p>
           <div className="mt-8 grid gap-4">
             {SERVICES.map((s) => (

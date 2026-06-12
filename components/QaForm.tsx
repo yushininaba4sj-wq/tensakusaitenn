@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { SubmitLoginNotice } from "@/components/SubmitLoginNotice";
 import { QA_CATEGORIES } from "@/lib/services";
 import { uploadSubmissionImages } from "@/lib/submissionImages";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { useAuthReady } from "@/lib/useAuthReady";
 
 type QaFormProps = {
   title: string;
@@ -13,6 +15,7 @@ type QaFormProps = {
 
 export function QaForm({ title }: QaFormProps) {
   const router = useRouter();
+  const { requiresLogin } = useAuthReady();
   const [category, setCategory] = useState<string>(QA_CATEGORIES[0]);
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -30,23 +33,22 @@ export function QaForm({ title }: QaFormProps) {
       return;
     }
 
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      router.push("/login?next=/qa");
+      return;
+    }
+
     setLoading(true);
 
     let imageUrls: string[] = [];
     let imagePaths: string[] = [];
 
     if (imageFile) {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        setLoading(false);
-        router.push("/login?next=/qa");
-        return;
-      }
-
       const upload = await uploadSubmissionImages(supabase, user.id, [imageFile]);
       if (upload.error) {
         setLoading(false);
@@ -87,8 +89,13 @@ export function QaForm({ title }: QaFormProps) {
   return (
     <div className="rounded-2xl border border-[var(--line)] bg-white p-5 shadow-sm sm:p-6">
       <h2 className="text-lg font-bold">{title}</h2>
+      {requiresLogin && (
+        <SubmitLoginNotice
+          detail="ここで質問内容は書けますが、送信時にログイン画面へ進みます。"
+        />
+      )}
       <p className="mt-2 text-sm text-[var(--muted)]">
-        わからない問題・勉強法・志望校のこと、何でも聞いてください。
+        わからない問題や勉強法のことを、そのまま質問できます。
       </p>
       <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
         <div>
@@ -155,7 +162,13 @@ export function QaForm({ title }: QaFormProps) {
           disabled={loading || submitted}
           className="w-full rounded-xl bg-[var(--accent)] py-3.5 text-sm font-bold text-white disabled:opacity-60"
         >
-          {loading ? "送信中…" : submitted ? "投稿しました" : "質問を送る"}
+          {loading
+            ? "送信中…"
+            : submitted
+              ? "投稿しました"
+              : requiresLogin
+                ? "ログインして送信する"
+                : "質問を送る"}
         </button>
       </form>
       {submitted && (

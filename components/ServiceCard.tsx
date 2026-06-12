@@ -11,7 +11,7 @@ export function ServiceCard({ service }: { service: ServiceInfo }) {
       <p className="text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
         {service.title}
       </p>
-      <p className="mt-2 text-lg font-bold">{service.short}</p>
+      <p className="mt-2 text-[17px] font-bold leading-tight sm:text-lg">{service.short}</p>
       <div className="mt-3 flex flex-wrap items-baseline gap-2">
         {CAMPAIGN.active ? (
           <>

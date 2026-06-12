@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { SubmitLoginNotice } from "@/components/SubmitLoginNotice";
 import type { SubmissionService } from "@/lib/submissions";
 import { uploadSubmissionImages } from "@/lib/submissionImages";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { useAuthReady } from "@/lib/useAuthReady";
 
 type SubmitFormProps = {
   service: SubmissionService;
@@ -31,6 +33,7 @@ export function SubmitForm({
   formatSubmission,
 }: SubmitFormProps) {
   const router = useRouter();
+  const { requiresLogin } = useAuthReady();
   const [preview, setPreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [content, setContent] = useState("");
@@ -48,23 +51,22 @@ export function SubmitForm({
       return;
     }
 
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+
     setLoading(true);
 
     let imageUrls: string[] = [];
     let imagePaths: string[] = [];
 
     if (imageFile) {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        setLoading(false);
-        router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
-        return;
-      }
-
       const upload = await uploadSubmissionImages(supabase, user.id, [imageFile]);
       if (upload.error) {
         setLoading(false);
@@ -107,6 +109,7 @@ export function SubmitForm({
   return (
     <div className="rounded-2xl border border-[var(--line)] bg-white p-6 shadow-sm">
       <h2 className="text-lg font-bold">{title}</h2>
+      {requiresLogin && <SubmitLoginNotice />}
       <div className="mt-4 rounded-xl bg-[#fff7f8] px-4 py-3 text-sm text-[var(--accent-dark)]">
         <p className="font-bold">投稿の際のお願い</p>
         <ul className="mt-2 list-disc space-y-1 pl-5">
@@ -165,8 +168,10 @@ export function SubmitForm({
           {loading
             ? "送信中…"
             : submitted
-              ? "受付しました"
-              : submitLabel}
+              ? "送信しました"
+              : requiresLogin
+                ? "ログインして送信する"
+                : submitLabel}
         </button>
       </form>
       {submitted && (

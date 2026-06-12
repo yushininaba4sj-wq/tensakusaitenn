@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { TabIcon } from "@/components/TabIcons";
 import { TAB_NAV } from "@/lib/services";
 
 export function BottomTabs() {
@@ -15,7 +16,7 @@ export function BottomTabs() {
       <div className="mx-auto flex max-w-lg">
         {TAB_NAV.map((tab) => {
           const active = tab.match(pathname);
-          const className = `flex flex-1 flex-col items-center gap-0.5 px-1 py-2 text-center transition ${
+          const className = `flex flex-1 flex-col items-center gap-1 px-1 py-2 text-center transition ${
             active
               ? "text-[var(--accent)]"
               : "text-[var(--muted)] active:text-[var(--ink)]"
@@ -26,6 +27,9 @@ export function BottomTabs() {
               <span
                 className={`h-1 w-5 rounded-full ${active ? "bg-[var(--accent)]" : "bg-transparent"}`}
               />
+              <span className="flex h-4 items-center justify-center">
+                <TabIcon name={tab.icon} active={active} />
+              </span>
               <span className="text-[10px] font-bold leading-tight">{tab.label}</span>
             </>
           );
