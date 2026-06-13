@@ -1,7 +1,13 @@
--- GOUKAKU LINK: 画像アップロード用 Storage（SENPAI LINK 管理者画面と共有）
--- 共有 Supabase SQL Editor でそのまま実行すること。
--- Bucket not found が出ている場合は、このファイルを本番で未実行の可能性が高い。
+# Bucket not found 修正（本番 Supabase・管理者向け）
 
+GOUKAKU LINK 本番で添削・英作文の画像アップロードが **`Bucket not found`** で失敗する場合、  
+本番 Supabase に Storage バケット `service-attachments` がありません。
+
+## やること
+
+Supabase Dashboard → **SQL Editor** → **New query** で、下の SQL を**そのまま**実行してください。
+
+```sql
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
   'service-attachments',
@@ -49,3 +55,15 @@ begin
       );
   end if;
 end $$;
+```
+
+## 確認
+
+1. Supabase Dashboard → **Storage** に `service-attachments` バケットが表示される
+2. https://goukakulink.vercel.app でログイン後、添削フォームから画像付きで送信
+3. **Bucket not found** が出なくなる
+
+## 補足
+
+- 同じ内容は `supabase/storage.sql` にもあります（再実行しても安全な idempotent 版）
+- 既存の SENPAI LINK テーブル・Auth 設定は触りません

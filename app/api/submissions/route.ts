@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { syncToSenpaiServiceRequests } from "@/lib/senpaiSync";
+import { syncSubmissionToSenpaiAdmin } from "@/lib/senpaiSync";
 import { SERVICE_LABELS, type SubmissionService } from "@/lib/submissions";
 import { NextResponse } from "next/server";
 
@@ -73,8 +73,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const syncResult = await syncToSenpaiServiceRequests(supabase, {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const syncResult = await syncSubmissionToSenpaiAdmin(supabase, {
+    accessToken: session?.access_token ?? null,
     userId: user.id,
+    userEmail: user.email,
     service,
     title,
     content,
@@ -94,5 +100,9 @@ export async function POST(request: Request) {
     );
   }
 
-  return NextResponse.json({ submission: data });
+  return NextResponse.json({
+    submission: data,
+    syncChannel: syncResult.channel,
+    notifyWarning: syncResult.notifyWarning ?? null,
+  });
 }
