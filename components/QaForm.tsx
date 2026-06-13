@@ -6,7 +6,7 @@ import { useState } from "react";
 import { SubmitLoginNotice } from "@/components/SubmitLoginNotice";
 import { QA_CATEGORIES } from "@/lib/services";
 import { uploadSubmissionImages } from "@/lib/submissionImages";
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { createClient, getAccessToken, isSupabaseConfigured } from "@/lib/supabase/client";
 import { useAuthReady } from "@/lib/useAuthReady";
 
 type QaFormProps = {
@@ -59,6 +59,7 @@ export function QaForm({ title }: QaFormProps) {
       imagePaths = upload.paths;
     }
 
+    const accessToken = await getAccessToken(supabase);
     const res = await fetch("/api/submissions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -68,6 +69,7 @@ export function QaForm({ title }: QaFormProps) {
         content: `【${category}】\n${content}`,
         image_urls: imageUrls,
         image_paths: imagePaths,
+        access_token: accessToken,
       }),
     });
     setLoading(false);

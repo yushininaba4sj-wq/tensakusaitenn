@@ -47,6 +47,10 @@ export async function POST(request: Request) {
   const title = body.title ? String(body.title) : SERVICE_LABELS[service];
   const imageUrls = parseStringArray(body.image_urls);
   const imagePaths = parseStringArray(body.image_paths);
+  const clientAccessToken =
+    typeof body.access_token === "string" && body.access_token.length > 0
+      ? body.access_token
+      : null;
 
   if (!service || !(service in SERVICE_LABELS)) {
     return NextResponse.json({ error: "不正なサービスです" }, { status: 400 });
@@ -78,7 +82,7 @@ export async function POST(request: Request) {
   } = await supabase.auth.getSession();
 
   const syncResult = await syncSubmissionToSenpaiAdmin(supabase, {
-    accessToken: session?.access_token ?? null,
+    accessToken: clientAccessToken ?? session?.access_token ?? null,
     userId: user.id,
     userEmail: user.email,
     service,

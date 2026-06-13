@@ -116,6 +116,24 @@ export async function syncSubmissionToSenpaiAdmin(
 
   const dbResult = await insertSenpaiServiceRequest(supabase, input);
   if (dbResult.error) {
+    console.warn("[senpaiSync] direct DB insert failed:", dbResult.error);
+
+    const slackResult = await notifyOpsSlack({
+      service: input.service,
+      title: input.title,
+      content: input.content,
+      userId: input.userId,
+      userEmail: input.userEmail,
+      imageCount: input.imageUrls.length,
+    });
+
+    if (!slackResult.error) {
+      return {
+        channel: "direct_db",
+        notifyWarning: `管理者画面への登録に失敗（RLS）。Slack のみ通知済み: ${dbResult.error}`,
+      };
+    }
+
     return {
       error: dbResult.error,
       channel: "direct_db",

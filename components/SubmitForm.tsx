@@ -6,7 +6,7 @@ import { useState } from "react";
 import { SubmitLoginNotice } from "@/components/SubmitLoginNotice";
 import type { SubmissionService } from "@/lib/submissions";
 import { uploadSubmissionImages } from "@/lib/submissionImages";
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { createClient, getAccessToken, isSupabaseConfigured } from "@/lib/supabase/client";
 import { useAuthReady } from "@/lib/useAuthReady";
 
 type SubmitFormProps = {
@@ -78,6 +78,7 @@ export function SubmitForm({
     }
 
     const payload = formatSubmission?.(content) ?? { content };
+    const accessToken = await getAccessToken(supabase);
     const res = await fetch("/api/submissions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -87,6 +88,7 @@ export function SubmitForm({
         title: payload.title ?? title,
         image_urls: imageUrls,
         image_paths: imagePaths,
+        access_token: accessToken,
       }),
     });
     setLoading(false);
