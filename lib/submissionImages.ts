@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export const SUBMISSION_IMAGE_BUCKET = "service-attachments";
+export const SUBMISSION_IMAGE_BUCKET = "service-request-attachments";
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const MAX_FILES = 5;
 
@@ -48,7 +48,11 @@ export async function uploadSubmissionImages(
       });
 
     if (uploadError) {
-      return { urls: [], paths: [], error: uploadError.message };
+      const message =
+        uploadError.message === "Bucket not found"
+          ? `Storage バケット「${SUBMISSION_IMAGE_BUCKET}」が見つかりません。管理者に Storage RLS の設定を依頼してください。`
+          : uploadError.message;
+      return { urls: [], paths: [], error: message };
     }
 
     const { data: signed, error: signError } = await supabase.storage

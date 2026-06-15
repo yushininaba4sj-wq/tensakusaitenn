@@ -1,9 +1,6 @@
--- GOUKAKU LINK: 画像アップロード用 Storage RLS（SENPAI LINK と共有バケット）
--- 共有 Supabase SQL Editor でそのまま実行すること。
--- バケット名: service-request-attachments（SENPAI 側既存。新規バケット作成はしない）
--- Bucket not found が出る場合: バケット未作成 or バケット名の不一致を SENPAI 管理者に確認
-
--- 詳細版は supabase/migrations/20260612_service_request_attachments_rls.sql と同内容
+-- GOUKAKU LINK: SENPAI 共有バケット service-request-attachments への Storage RLS
+-- バケット自体は SENPAI LINK 側で既存。GOUKAKU ユーザーが自分のフォルダに upload/read できるようにする。
+-- パス形式: {auth.uid()}/...
 
 do $$
 begin

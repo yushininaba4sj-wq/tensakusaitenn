@@ -1,12 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { SenpaiApiPayload } from "@/lib/senpaiApi";
 import { submitToSenpaiApi } from "@/lib/senpaiApi";
+import { SUBMISSION_IMAGE_BUCKET } from "@/lib/submissionImages";
 import { notifyOpsSlack } from "@/lib/slackNotify";
 import { SERVICE_LABELS, type SubmissionService } from "@/lib/submissions";
 
+/** SENPAI LINK student_service_requests が期待する service_type */
 export const SERVICE_TYPE_MAP: Record<SubmissionService, string> = {
   tensaku: "correction",
-  kakomon: "kakomon",
+  kakomon: "kakomon_bunseki",
   qa: "study_room",
   plan: "plan",
 };
@@ -35,7 +37,7 @@ export function buildSenpaiAttachments(
   return imageUrls.map((url, index) => ({
     url,
     type: "image" as const,
-    bucket: "service-attachments",
+    bucket: SUBMISSION_IMAGE_BUCKET,
     path: imagePaths[index],
   }));
 }
@@ -55,7 +57,7 @@ async function insertSenpaiServiceRequest(
     user_id: input.userId,
     service_type: SERVICE_TYPE_MAP[input.service],
     message: buildSenpaiServiceMessage(input.service, input.title, input.content),
-    status: "pending",
+    status: "new",
     attachments:
       input.imageUrls.length > 0
         ? buildSenpaiAttachments(input.imageUrls, input.imagePaths)

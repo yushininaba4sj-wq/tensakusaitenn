@@ -1,69 +1,40 @@
-# Bucket not found 修正（本番 Supabase・管理者向け）
+# Bucket not found 修正手順
 
-GOUKAKU LINK 本番で添削・英作文の画像アップロードが **`Bucket not found`** で失敗する場合、  
-本番 Supabase に Storage バケット `service-attachments` がありません。
+## 原因
 
-## やること
+本番 Supabase に、GOUKAKU LINK が使う Storage バケット **`service-request-attachments`** へのアクセス権（RLS）がない、またはバケット自体が存在しない。
 
-Supabase Dashboard → **SQL Editor** → **New query** で、下の SQL を**そのまま**実行してください。
+> **注意:** 旧仕様の `service-attachments` バケットは使いません。SENPAI LINK と共有の `service-request-attachments` に統一しています。
+
+## 手順
+
+### 1. バケットの存在確認
+
+Supabase Dashboard → **Storage** で `service-request-attachments` があるか確認。
+
+- **ある** → 手順 2（RLS のみ）へ
+- **ない** → SENPAI LINK 管理者にバケット作成を依頼（GOUKAKU 側では新規作成しない）
+
+### 2. RLS ポリシー追加
+
+SQL Editor で `supabase/storage.sql` をそのまま実行。
 
 ```sql
-insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values (
-  'service-attachments',
-  'service-attachments',
-  false,
-  10485760,
-  array['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic']
-)
-on conflict (id) do nothing;
-
-do $$
-begin
-  if not exists (
-    select 1
-    from pg_policies
-    where schemaname = 'storage'
-      and tablename = 'objects'
-      and policyname = 'Users upload own service attachments'
-  ) then
-    create policy "Users upload own service attachments"
-      on storage.objects for insert
-      to authenticated
-      with check (
-        bucket_id = 'service-attachments'
-        and (storage.foldername(name))[1] = auth.uid()::text
-      );
-  end if;
-end $$;
-
-do $$
-begin
-  if not exists (
-    select 1
-    from pg_policies
-    where schemaname = 'storage'
-      and tablename = 'objects'
-      and policyname = 'Users read own service attachments'
-  ) then
-    create policy "Users read own service attachments"
-      on storage.objects for select
-      to authenticated
-      using (
-        bucket_id = 'service-attachments'
-        and (storage.foldername(name))[1] = auth.uid()::text
-      );
-  end if;
-end $$;
+-- 内容は storage.sql を参照（Goukakulink users upload/read service request attachments）
 ```
 
-## 確認
+### 3. 確認
 
-1. Supabase Dashboard → **Storage** に `service-attachments` バケットが表示される
+1. Supabase Dashboard → **Storage** → `service-request-attachments` が表示される
 2. https://goukakulink.vercel.app でログイン後、添削フォームから画像付きで送信
-3. **Bucket not found** が出なくなる
+3. Bucket not found が出ないこと
 
-## 補足
+## 3箇所の bucket 名を一致させること
 
-- 同じ内容は `supabase/storage.sql` にもあります（再実行しても安全な idempotent 版）
-- 既存の SENPAI LINK テーブル・Auth 設定は触りません
+| 箇所 | バケット名 |
+|------|-----------|
+| `lib/submissionImages.ts`（アップロード先） | `service-request-attachments` |
+| `lib/senpaiSync.ts`（attachments[].bucket） | `service-request-attachments` |
+| Storage RLS（`storage.sql`） | `service-request-attachments` |
+
+1つでもズレると、管理画面で画像が開けない／将来の AI 処理で破綻します。

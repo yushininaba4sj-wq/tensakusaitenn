@@ -1,0 +1,28 @@
+【友人(GOUKAKU)へ転送用】GOUKAKU記録漏れ B修正の依頼メッセージ ↓そのまま転送OK
+
+---
+おつかれさま！GOUKAKUの依頼がSENPAIの管理ダッシュボードに正しく出ない件、原因が分かったので tensakusaitenn 側の修正をお願いしたいです🙏
+
+【原因】
+GOUKAKUは app/api/submissions → lib/senpaiSync.ts でSENPAIの student_service_requests に直接 insert してるんだけど、その値が旧仕様で、SENPAI側が期待する値とズレてる。だから「受付済み」に出ない＆通知も飛ばない。
+
+【直してほしいこと】
+
+① lib/senpaiSync.ts の値を3つ修正
+　- service_type: kakomon → kakomon_bunseki
+　- status: pending → new
+　- attachments の bucket: service-attachments → service-request-attachments
+　※ コードは main に push 済み（または pull して確認）。コミット済みならデプロイだけでOK。
+
+② 画像bucketを service-request-attachments に統一（①と整合させる）
+　- lib/submissionImages.ts の SUBMISSION_IMAGE_BUCKET を "service-request-attachments" に変更（エラー文言の bucket名も合わせて）
+　- マイグレーションは service-attachments を新規作成するのをやめて、SENPAI共有の service-request-attachments を使う前提に。GOUKAKUのユーザーがこのbucketに insert / 署名URL取得できる Storage RLSポリシーを追加してね。
+　　→ supabase/storage.sql を Supabase SQL Editor で実行
+　※ upload先・Storageポリシー・sync記録の3か所を必ず同じbucket名に。1つでもズレるとSENPAI側で画像が開けない。
+
+③ すでに service-attachments にアップ済みの画像があれば、service-request-attachments へ移すか旧bucketも読めるようにするか判断を。
+
+【デプロイ後の確認】
+GOUKAKUでテスト依頼を1件（できれば過去問分析）送信 → SENPAIの /admin/dashboard で「GOUKAKU依頼 受付済み」が増えて、Slack通知が届けばOK！
+
+詳しい手順はリポジトリ内の引き継ぎ書（2026-06-14_GOUKAKU連携_記録漏れ修正_引き継ぎ書.md）にまとめてあるので、それ見ながらで大丈夫です。SENPAI側の受け入れはこっちで対応済みです。よろしく！
