@@ -15,6 +15,11 @@ function truncate(text: string, max = 1200): string {
   return `${text.slice(0, max)}…`;
 }
 
+function getSenpaiAdminDashboardUrl(): string {
+  const origin = process.env.SENPAI_LINK_ORIGIN ?? SITE.senpaiLink;
+  return `${origin.replace(/\/$/, "")}/admin/dashboard`;
+}
+
 export function buildSlackSubmissionMessage(input: SlackNotifyInput): string {
   const lines = [
     `[GOUKAKU LINK] 新規依頼: ${SERVICE_LABELS[input.service]}`,
@@ -24,7 +29,7 @@ export function buildSlackSubmissionMessage(input: SlackNotifyInput): string {
     "",
     truncate(input.content),
     "",
-    `管理画面: ${SITE.senpaiLink}`,
+    `管理画面: ${getSenpaiAdminDashboardUrl()}`,
   ].filter(Boolean);
 
   return lines.join("\n");
