@@ -27,13 +27,14 @@ export async function uploadSubmissionImages(
   supabase: SupabaseClient,
   userId: string,
   files: File[],
-): Promise<{ urls: string[]; paths: string[]; error?: string }> {
+): Promise<{ urls: string[]; paths: string[]; names: string[]; error?: string }> {
   const validationError = validateImageFiles(files);
-  if (validationError) return { urls: [], paths: [], error: validationError };
-  if (files.length === 0) return { urls: [], paths: [] };
+  if (validationError) return { urls: [], paths: [], names: [], error: validationError };
+  if (files.length === 0) return { urls: [], paths: [], names: [] };
 
   const urls: string[] = [];
   const paths: string[] = [];
+  const names: string[] = [];
 
   for (const file of files) {
     const ext = file.name.includes(".") ? file.name.split(".").pop() : "jpg";
@@ -52,20 +53,21 @@ export async function uploadSubmissionImages(
         uploadError.message === "Bucket not found"
           ? `Storage バケット「${SUBMISSION_IMAGE_BUCKET}」が見つかりません。管理者に Storage RLS の設定を依頼してください。`
           : uploadError.message;
-      return { urls: [], paths: [], error: message };
+      return { urls: [], paths: [], names: [], error: message };
     }
 
     const { data: signed, error: signError } = await supabase.storage
       .from(SUBMISSION_IMAGE_BUCKET)
-      .createSignedUrl(path, 60 * 60 * 24 * 365);
+      .createSignedUrl(path, 60 * 60 * 24 * 30);
 
     if (signError || !signed?.signedUrl) {
-      return { urls: [], paths: [], error: signError?.message ?? "画像URLの取得に失敗しました" };
+      return { urls: [], paths: [], names: [], error: signError?.message ?? "画像URLの取得に失敗しました" };
     }
 
     paths.push(path);
+    names.push(file.name || `image-${paths.length}`);
     urls.push(signed.signedUrl);
   }
 
-  return { urls, paths };
+  return { urls, paths, names };
 }

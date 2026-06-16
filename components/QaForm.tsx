@@ -47,6 +47,7 @@ export function QaForm({ title }: QaFormProps) {
 
     let imageUrls: string[] = [];
     let imagePaths: string[] = [];
+    let imageNames: string[] = [];
 
     if (imageFile) {
       const upload = await uploadSubmissionImages(supabase, user.id, [imageFile]);
@@ -57,6 +58,7 @@ export function QaForm({ title }: QaFormProps) {
       }
       imageUrls = upload.urls;
       imagePaths = upload.paths;
+      imageNames = upload.names;
     }
 
     const accessToken = await getAccessToken(supabase);
@@ -69,6 +71,7 @@ export function QaForm({ title }: QaFormProps) {
         content: `【${category}】\n${content}`,
         image_urls: imageUrls,
         image_paths: imagePaths,
+        image_names: imageNames,
         access_token: accessToken,
       }),
     });

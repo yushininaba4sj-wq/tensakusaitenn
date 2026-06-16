@@ -65,6 +65,7 @@ export function SubmitForm({
 
     let imageUrls: string[] = [];
     let imagePaths: string[] = [];
+    let imageNames: string[] = [];
 
     if (imageFile) {
       const upload = await uploadSubmissionImages(supabase, user.id, [imageFile]);
@@ -75,6 +76,7 @@ export function SubmitForm({
       }
       imageUrls = upload.urls;
       imagePaths = upload.paths;
+      imageNames = upload.names;
     }
 
     const payload = formatSubmission?.(content) ?? { content };
@@ -88,6 +90,7 @@ export function SubmitForm({
         title: payload.title ?? title,
         image_urls: imageUrls,
         image_paths: imagePaths,
+        image_names: imageNames,
         access_token: accessToken,
       }),
     });

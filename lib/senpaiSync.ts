@@ -33,12 +33,14 @@ export function buildSenpaiServiceMessage(
 export function buildSenpaiAttachments(
   imageUrls: string[],
   imagePaths: string[] = [],
+  imageNames: string[] = [],
 ): Attachment[] {
   return imageUrls.map((url, index) => ({
     url,
     type: "image" as const,
     bucket: SUBMISSION_IMAGE_BUCKET,
     path: imagePaths[index],
+    name: imageNames[index] ?? imagePaths[index]?.split("/").pop(),
   }));
 }
 
@@ -51,6 +53,7 @@ async function insertSenpaiServiceRequest(
     content: string;
     imageUrls: string[];
     imagePaths?: string[];
+    imageNames?: string[];
   },
 ): Promise<{ error?: string }> {
   const { error } = await supabase.from("student_service_requests").insert({
@@ -60,7 +63,7 @@ async function insertSenpaiServiceRequest(
     status: "new",
     attachments:
       input.imageUrls.length > 0
-        ? buildSenpaiAttachments(input.imageUrls, input.imagePaths)
+        ? buildSenpaiAttachments(input.imageUrls, input.imagePaths, input.imageNames)
         : [],
   });
 
@@ -93,6 +96,7 @@ export async function syncSubmissionToSenpaiAdmin(
     content: string;
     imageUrls: string[];
     imagePaths?: string[];
+    imageNames?: string[];
   },
 ): Promise<SenpaiSyncResult> {
   if (input.accessToken) {
@@ -101,7 +105,7 @@ export async function syncSubmissionToSenpaiAdmin(
       message: buildSenpaiServiceMessage(input.service, input.title, input.content),
       attachments:
         input.imageUrls.length > 0
-          ? buildSenpaiAttachments(input.imageUrls, input.imagePaths)
+          ? buildSenpaiAttachments(input.imageUrls, input.imagePaths, input.imageNames)
           : [],
     };
     const apiResult = await submitToSenpaiApi(input.accessToken, payload);
@@ -127,6 +131,7 @@ export async function syncSubmissionToSenpaiAdmin(
       userId: input.userId,
       userEmail: input.userEmail,
       imageCount: input.imageUrls.length,
+      imageUrls: input.imageUrls,
     });
 
     if (!slackResult.error) {
@@ -149,6 +154,7 @@ export async function syncSubmissionToSenpaiAdmin(
     userId: input.userId,
     userEmail: input.userEmail,
     imageCount: input.imageUrls.length,
+    imageUrls: input.imageUrls,
   });
 
   if (slackResult.error) {

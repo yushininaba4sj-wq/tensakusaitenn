@@ -8,6 +8,7 @@ type SlackNotifyInput = {
   userId: string;
   userEmail?: string | null;
   imageCount: number;
+  imageUrls?: string[];
 };
 
 function truncate(text: string, max = 1200): string {
@@ -15,9 +16,10 @@ function truncate(text: string, max = 1200): string {
   return `${text.slice(0, max)}…`;
 }
 
-function getSenpaiAdminDashboardUrl(): string {
-  const origin = process.env.SENPAI_LINK_ORIGIN ?? SITE.senpaiLink;
-  return `${origin.replace(/\/$/, "")}/admin/dashboard`;
+function getSenpaiAdminLoginUrl(): string {
+  const origin = (process.env.SENPAI_LINK_ORIGIN ?? SITE.senpaiLink).replace(/\/$/, "");
+  const next = encodeURIComponent("/admin/dashboard");
+  return `${origin}/admin/login?next=${next}`;
 }
 
 export function buildSlackSubmissionMessage(input: SlackNotifyInput): string {
@@ -29,8 +31,15 @@ export function buildSlackSubmissionMessage(input: SlackNotifyInput): string {
     "",
     truncate(input.content),
     "",
-    `管理画面: ${getSenpaiAdminDashboardUrl()}`,
+    `管理画面: ${getSenpaiAdminLoginUrl()}`,
   ].filter(Boolean);
+
+  if (input.imageUrls && input.imageUrls.length > 0) {
+    lines.push("", "添付画像URL:");
+    input.imageUrls.forEach((url, index) => {
+      lines.push(`${index + 1}. ${url}`);
+    });
+  }
 
   return lines.join("\n");
 }

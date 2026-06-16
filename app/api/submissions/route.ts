@@ -47,6 +47,7 @@ export async function POST(request: Request) {
   const title = body.title ? String(body.title) : SERVICE_LABELS[service];
   const imageUrls = parseStringArray(body.image_urls);
   const imagePaths = parseStringArray(body.image_paths);
+  const imageNames = parseStringArray(body.image_names);
   const clientAccessToken =
     typeof body.access_token === "string" && body.access_token.length > 0
       ? body.access_token
@@ -90,6 +91,7 @@ export async function POST(request: Request) {
     content,
     imageUrls,
     imagePaths,
+    imageNames,
   });
 
   if (syncResult.error) {
