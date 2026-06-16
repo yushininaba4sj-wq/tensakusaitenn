@@ -1,6 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
+import {
+  matchServiceRequestToSubmission,
+  parseFileAttachments,
+  type StudentServiceRequestRow,
+} from "@/lib/replyAttachments";
 import { syncSubmissionToSenpaiAdmin } from "@/lib/senpaiSync";
-import { SERVICE_LABELS, type SubmissionService } from "@/lib/submissions";
+import { SERVICE_LABELS, type SubmissionRow, type SubmissionService } from "@/lib/submissions";
 import { NextResponse } from "next/server";
 
 function parseStringArray(value: unknown): string[] {
@@ -28,7 +33,46 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ submissions: data ?? [] });
+  const submissions = data ?? [];
+  const { data: serviceRequests, error: serviceRequestError } = await supabase
+    .from("student_service_requests")
+    .select("id, service_type, message, admin_reply, reply_attachments, created_at")
+    .eq("user_id", user.id)
+    .like("message", "[GOUKAKU LINK%")
+    .order("created_at", { ascending: false });
+
+  if (serviceRequestError) {
+    console.warn("[submissions GET] student_service_requests:", serviceRequestError.message);
+    return NextResponse.json({ submissions });
+  }
+
+  const usedRequestIds = new Set<string>();
+  const enriched: SubmissionRow[] = submissions.map((submission) => {
+    const match = matchServiceRequestToSubmission(
+      submission,
+      (serviceRequests ?? []) as StudentServiceRequestRow[],
+      usedRequestIds,
+    );
+
+    if (!match) return submission;
+
+    const adminReply =
+      typeof match.admin_reply === "string" && match.admin_reply.trim().length > 0
+        ? match.admin_reply
+        : null;
+    const replyAttachments = parseFileAttachments(match.reply_attachments);
+    const hasReply = Boolean(adminReply) || replyAttachments.length > 0;
+
+    return {
+      ...submission,
+      admin_reply: adminReply,
+      reply_attachments: replyAttachments,
+      status: hasReply || submission.status === "answered" ? "answered" : submission.status,
+      response: submission.response ?? adminReply,
+    };
+  });
+
+  return NextResponse.json({ submissions: enriched });
 }
 
 export async function POST(request: Request) {

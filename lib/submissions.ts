@@ -1,5 +1,12 @@
 export type SubmissionService = "tensaku" | "kakomon" | "qa" | "plan";
 
+export type ReplyAttachment = {
+  url: string;
+  path?: string;
+  name?: string;
+  type?: string;
+};
+
 export type SubmissionRow = {
   id: string;
   user_id: string;
@@ -11,6 +18,8 @@ export type SubmissionRow = {
   response: string | null;
   response_at: string | null;
   created_at: string;
+  admin_reply?: string | null;
+  reply_attachments?: ReplyAttachment[];
 };
 
 export const SERVICE_LABELS: Record<SubmissionService, string> = {

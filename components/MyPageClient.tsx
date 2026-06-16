@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AttachmentList } from "@/components/AttachmentList";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import {
   SERVICE_LABELS,
@@ -112,7 +113,12 @@ export function MyPageClient() {
         </div>
       ) : (
         <ul className="space-y-4">
-          {submissions.map((item) => (
+          {submissions.map((item) => {
+            const replyText = item.response ?? item.admin_reply;
+            const replyAttachments = item.reply_attachments ?? [];
+            const hasReply = Boolean(replyText) || replyAttachments.length > 0;
+
+            return (
             <li
               key={item.id}
               className="rounded-2xl border border-[var(--line)] bg-white p-5"
@@ -138,42 +144,32 @@ export function MyPageClient() {
                 {item.content}
               </p>
               {item.image_urls && item.image_urls.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {item.image_urls.map((url) => (
-                    <a
-                      key={url}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block overflow-hidden rounded-lg border border-[var(--line)]"
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={url}
-                        alt="添付画像"
-                        className="max-h-40 w-auto object-cover"
-                      />
-                    </a>
-                  ))}
-                </div>
+                <AttachmentList
+                  label="送信した画像"
+                  attachments={item.image_urls.map((url) => ({ url, type: "image" }))}
+                />
               )}
               <p className="mt-2 text-[10px] text-[var(--muted)]">
                 依頼: {formatDate(item.created_at)}
               </p>
 
-              {item.response && (
+              {hasReply && (
                 <div className="mt-4 rounded-xl border border-[var(--senpai)]/25 bg-[#e8fafe]/50 p-4">
                   <p className="text-xs font-bold text-[var(--senpai-dark)]">
                     返答
                     {item.response_at && ` · ${formatDate(item.response_at)}`}
                   </p>
-                  <p className="mt-2 text-sm leading-relaxed whitespace-pre-wrap">
-                    {item.response}
-                  </p>
+                  {replyText && (
+                    <p className="mt-2 text-sm leading-relaxed whitespace-pre-wrap">
+                      {replyText}
+                    </p>
+                  )}
+                  <AttachmentList label="返信の添付" attachments={replyAttachments} />
                 </div>
               )}
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </div>
