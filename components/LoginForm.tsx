@@ -2,12 +2,28 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { SITE } from "@/lib/services";
 import { SenpaiBrandName } from "@/components/SenpaiLink";
 
-export function LoginForm() {
+type LoginFormProps = {
+  allowedEmails?: string[];
+  title?: string;
+  description?: string;
+  storageKey?: string;
+};
+
+function normalizeEmail(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+export function LoginForm({
+  allowedEmails,
+  title = "ログイン",
+  description,
+  storageKey = "goukaku_last_login_email",
+}: LoginFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/mypage";
@@ -22,6 +38,45 @@ export function LoginForm() {
     authError ? "ログインに失敗しました。もう一度お試しください。" : null,
   );
   const [loading, setLoading] = useState(false);
+  const [lastEmail, setLastEmail] = useState<string | null>(null);
+
+  const allowedSet = useMemo(() => {
+    if (!allowedEmails || allowedEmails.length === 0) return null;
+    return new Set(allowedEmails.map(normalizeEmail));
+  }, [allowedEmails]);
+
+  const loginDescription =
+    description ??
+    `${SITE.senpaiName}と同じメールアドレス・パスワードでログインできます。依頼した添削・採点・質問の返答はマイページで確認できます。`;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = window.localStorage.getItem(storageKey);
+    if (saved) {
+      setLastEmail(saved);
+    }
+  }, [storageKey]);
+
+  function canUseEmail(targetEmail: string): boolean {
+    if (!allowedSet) return true;
+    return allowedSet.has(normalizeEmail(targetEmail));
+  }
+
+  function ensureAllowedEmail(): boolean {
+    if (canUseEmail(email)) return true;
+    setMessage("このメールアドレスではログインできません（運営用アカウントのみ）。");
+    setLoading(false);
+    return false;
+  }
+
+  function rememberEmail(targetEmail: string) {
+    const normalized = normalizeEmail(targetEmail);
+    if (!normalized) return;
+    setLastEmail(normalized);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(storageKey, normalized);
+    }
+  }
 
   if (!isSupabaseConfigured()) {
     return (
@@ -45,6 +100,7 @@ export function LoginForm() {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
+    if (!ensureAllowedEmail()) return;
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
@@ -52,6 +108,7 @@ export function LoginForm() {
       setMessage(error.message);
       return;
     }
+    rememberEmail(email);
     router.push(next);
     router.refresh();
   }
@@ -60,6 +117,7 @@ export function LoginForm() {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
+    if (!ensureAllowedEmail()) return;
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOtp({
       email,
@@ -73,6 +131,7 @@ export function LoginForm() {
       setMessage(error.message);
       return;
     }
+    rememberEmail(email);
     setOtpSent(true);
     setOtpCode("");
     setMessage(
@@ -84,6 +143,7 @@ export function LoginForm() {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
+    if (!ensureAllowedEmail()) return;
     const supabase = createClient();
     const { error } = await supabase.auth.verifyOtp({
       email,
@@ -95,17 +155,31 @@ export function LoginForm() {
       setMessage("コードが正しくないか、期限切れです。もう一度お試しください。");
       return;
     }
+    rememberEmail(email);
     router.push(next);
     router.refresh();
   }
 
   return (
     <div className="rounded-2xl border border-[var(--line)] bg-white p-6 shadow-sm">
-      <h1 className="text-xl font-bold">ログイン</h1>
+      <h1 className="text-xl font-bold">{title}</h1>
       <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
-        <SenpaiBrandName />
-        と同じメールアドレス・パスワードでログインできます。依頼した添削・採点・質問の返答はマイページで確認できます。
+        {loginDescription}
       </p>
+      {allowedSet && (
+        <p className="mt-2 rounded-xl bg-[#fff7f8] px-3 py-2 text-xs font-bold text-[var(--accent)]">
+          運営で許可されたメールアドレスのみログインできます。
+        </p>
+      )}
+      {lastEmail && (
+        <button
+          type="button"
+          onClick={() => setEmail(lastEmail)}
+          className="mt-3 rounded-lg border border-[var(--line)] px-3 py-2 text-xs font-bold text-[var(--senpai-dark)]"
+        >
+          前回のメールで入力する（{lastEmail}）
+        </button>
+      )}
 
       <div className="mt-4 flex rounded-xl border border-[var(--line)] bg-[var(--bg)] p-1">
         <button
@@ -153,7 +227,7 @@ export function LoginForm() {
           <input
             required
             type="email"
-            autoComplete="email"
+            autoComplete="username email"
             readOnly={mode === "magic" && otpSent}
             className="mt-2 w-full rounded-xl border border-[var(--line)] bg-[var(--bg)] px-3 py-2.5 text-sm disabled:opacity-70"
             placeholder="SENPAI LINKと同じメール"
@@ -233,6 +307,10 @@ export function LoginForm() {
       </form>
 
       <p className="mt-4 text-center text-xs text-[var(--muted)]">
+        この端末でパスワードを保存すると、Face ID / Touch ID などですばやくログインできます。
+      </p>
+
+      <p className="mt-2 text-center text-xs text-[var(--muted)]">
         アカウントがない場合は{" "}
         <a
           href={`${SITE.senpaiLink}/student/login`}
