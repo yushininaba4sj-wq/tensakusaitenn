@@ -1,0 +1,15 @@
+【友人(GOUKAKU担当)に転送用】
+
+GOUKAKU→SENPAI連携、こちらで共有DBを確認しました。結論：
+
+・共有DBのRLSは既に入ってる → SQL実行は不要
+ - student_service_requests のINSERT(authenticated, auth.uid()=user_id)：存在済み
+ - service-request-attachments のStorage RLS(upload/read)：存在済み
+ - なので storage.sql / student_service_requests_rls.sql は実行しなくてOK（実行しても無害）
+
+・6eaea56 の修正内容も確認、正しい（tensaku→correction / kakomon→kakomon_bunseki / status:new / bucket=service-request-attachments）
+
+★残りはこれだけ：6eaea56 を goukakulink.vercel.app に本番デプロイするだけ。
+（OPS_SLACK_WEBHOOK_URL は設定済み・200 OKとのことなのでデプロイで通知も復活するはず）
+
+デプロイしたら教えて。こちらで「SENPAI /admin/dashboard にGOUKAKU依頼(受付済み)が増える＋Slack通知」を即確認します。過去問分析でテスト1件が分かりやすいです。
