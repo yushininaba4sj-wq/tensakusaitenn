@@ -8,6 +8,7 @@ export const metadata = buildPageMetadata({
   description:
     "SENPAI LINKと同じメールアドレスでログイン。添削・採点・質問の返答をマイページで確認。",
   path: "/login",
+  privatePage: true,
 });
 
 export default function LoginPage() {

@@ -6,6 +6,7 @@ export const metadata = buildPageMetadata({
   title: "マイページ",
   description: "添削・採点・質問の依頼状況と返答結果を確認。",
   path: "/mypage",
+  privatePage: true,
 });
 
 export default function MyPage() {

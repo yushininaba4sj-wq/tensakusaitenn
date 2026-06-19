@@ -38,7 +38,10 @@ export default function Home() {
           </p>
 
           <h1 className="mt-4 text-[28px] font-bold leading-[1.16] tracking-tight sm:text-[32px] md:text-[48px]">
-            <span className="block">学習計画から</span>
+            <span className="block text-[22px] text-[var(--accent)] sm:text-[26px] md:text-[32px]">
+              GOUKAKU LINK（合格リンク）
+            </span>
+            <span className="mt-2 block">学習計画から</span>
             <span className="block sm:hidden">添削・採点・</span>
             <span className="block sm:hidden">質問まで。</span>
             <span className="hidden sm:block">添削・採点・質問まで。</span>

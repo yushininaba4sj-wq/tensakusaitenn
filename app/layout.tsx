@@ -7,11 +7,14 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SITE } from "@/lib/services";
 import {
   buildPageMetadata,
+  getGoogleSiteVerification,
   getSiteUrl,
   organizationJsonLd,
   webSiteJsonLd,
 } from "@/lib/seo";
 import "./globals.css";
+
+const googleSiteVerification = getGoogleSiteVerification();
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
@@ -20,6 +23,9 @@ export const metadata: Metadata = {
     description: SITE.seoDescription,
     path: "/",
   }),
+  ...(googleSiteVerification
+    ? { verification: { google: googleSiteVerification } }
+    : {}),
 };
 
 export default function RootLayout({

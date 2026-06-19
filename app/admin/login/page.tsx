@@ -12,6 +12,7 @@ export const metadata = buildPageMetadata({
   title: "運営ログイン",
   description: "運営用メールアドレスのみログインできる管理者向けログイン画面。",
   path: "/admin/login",
+  privatePage: true,
 });
 
 export default function AdminLoginPage() {

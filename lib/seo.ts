@@ -16,6 +16,15 @@ type PageMeta = {
   description: string;
   path: string;
   keywords?: string[];
+  /** ログイン・マイページなど検索に載せたくないページ */
+  privatePage?: boolean;
+};
+
+const defaultOgImage = {
+  url: "/icon.png",
+  width: 512,
+  height: 512,
+  alt: SITE.nameJa,
 };
 
 export function buildPageMetadata({
@@ -23,6 +32,7 @@ export function buildPageMetadata({
   description,
   path,
   keywords = [],
+  privatePage = false,
 }: PageMeta): Metadata {
   const url = `${getSiteUrl()}${path}`;
   const fullTitle = path === "/" ? title : `${title} | ${SITE.name}`;
@@ -39,23 +49,31 @@ export function buildPageMetadata({
       siteName: SITE.nameJa,
       title: fullTitle,
       description,
+      images: [defaultOgImage],
     },
     twitter: {
       card: "summary_large_image",
       title: fullTitle,
       description,
+      images: [defaultOgImage.url],
     },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-      },
-    },
+    robots: privatePage
+      ? { index: false, follow: false }
+      : {
+          index: true,
+          follow: true,
+          googleBot: {
+            index: true,
+            follow: true,
+            "max-image-preview": "large",
+            "max-snippet": -1,
+          },
+        },
   };
+}
+
+export function getGoogleSiteVerification(): string | undefined {
+  return process.env.GOOGLE_SITE_VERIFICATION?.trim() || undefined;
 }
 
 export function organizationJsonLd() {
@@ -77,6 +95,7 @@ export function webSiteJsonLd() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: SITE.nameJa,
+    alternateName: SITE.alternateNames,
     url,
     description: SITE.description,
     inLanguage: "ja-JP",
