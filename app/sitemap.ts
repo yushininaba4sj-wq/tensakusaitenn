@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { SERVICES } from "@/lib/services";
 import { getSiteUrl } from "@/lib/seo";
 
-const SEO_LANDING_PATHS = ["/eibun", "/shoronbun"] as const;
+const SEO_LANDING_PATHS = ["/eibun", "/shoronbun", "/sites"] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = getSiteUrl();

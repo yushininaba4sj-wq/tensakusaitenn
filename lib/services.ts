@@ -122,7 +122,7 @@ export const SERVICES: ServiceInfo[] = [
   },
 ];
 
-export type TabIconName = "home" | "plan" | "tensaku" | "kakomon" | "qa" | "senpai";
+export type TabIconName = "home" | "plan" | "tensaku" | "kakomon" | "qa" | "senpai" | "sites";
 
 export type TabItem = {
   href: string;
@@ -146,6 +146,12 @@ export const TAB_NAV: TabItem[] = [
     icon: "senpai",
     external: true,
     match: () => false,
+  },
+  {
+    href: "/sites",
+    label: "新サイト",
+    icon: "sites",
+    match: (p) => p.startsWith("/sites"),
   },
 ];
 

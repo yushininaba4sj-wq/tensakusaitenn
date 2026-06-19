@@ -13,10 +13,10 @@ export function BottomTabs() {
       className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--line)] bg-white/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)]"
       aria-label="サービスナビゲーション"
     >
-      <div className="mx-auto flex max-w-lg">
+      <div className="mx-auto flex max-w-lg overflow-x-auto scrollbar-none">
         {TAB_NAV.map((tab) => {
           const active = tab.match(pathname);
-          const className = `flex flex-1 flex-col items-center gap-1 px-1 py-2 text-center transition ${
+          const className = `flex min-w-[3.25rem] flex-1 flex-col items-center gap-1 px-0.5 py-2 text-center transition ${
             active
               ? "text-[var(--accent)]"
               : "text-[var(--muted)] active:text-[var(--ink)]"

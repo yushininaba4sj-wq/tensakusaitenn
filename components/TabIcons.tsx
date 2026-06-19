@@ -1,5 +1,5 @@
 type TabIconProps = {
-  name: "home" | "plan" | "tensaku" | "kakomon" | "qa" | "senpai";
+  name: "home" | "plan" | "tensaku" | "kakomon" | "qa" | "senpai" | "sites";
   active?: boolean;
 };
 
@@ -135,6 +135,31 @@ export function TabIcon({ name, active }: TabIconProps) {
             d="M4.5 19a4.5 4.5 0 0 1 9 0M14 19a3.5 3.5 0 0 1 7 0"
             fill="none"
             stroke="currentColor"
+            strokeWidth="1.9"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+    case "sites":
+      return (
+        <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4">
+          <rect
+            x="4"
+            y="4"
+            width="16"
+            height="16"
+            rx="3"
+            fill="none"
+            stroke={stroke}
+            strokeWidth="1.9"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M12 8v8M8 12h8"
+            fill="none"
+            stroke={stroke}
             strokeWidth="1.9"
             strokeLinecap="round"
             strokeLinejoin="round"
