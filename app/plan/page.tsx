@@ -8,11 +8,16 @@ import { breadcrumbJsonLd, buildPageMetadata, serviceJsonLd } from "@/lib/seo";
 const service = getService("plan");
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "学習計画",
+  title: "大学受験 学習計画",
   description:
-    "志望校・偏差値・試験日から年間・月間・週間・今日のタスクまで、あなたに合った学習計画を立てる。進捗に合わせて毎日見直し。",
+    "大学受験向けの学習計画を自動作成。志望校・偏差値・試験日から年間・月間・週間・今日のタスクまで、早慶・MARCH志望の受験生向けに1日ノルマを計算。",
   path: "/plan",
-  keywords: ["学習計画", "受験 スケジュール", "学習計画 立て方"],
+  keywords: [
+    "大学受験 学習計画",
+    "学習計画",
+    "受験 スケジュール",
+    "早慶 学習計画",
+  ],
 });
 
 export default function PlanPage() {

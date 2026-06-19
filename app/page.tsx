@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExamSupportSection } from "@/components/ExamSupportSection";
 import { FaqSection } from "@/components/FaqSection";
 import { JsonLd } from "@/components/JsonLd";
 import { SenpaiBrandName, SenpaiLink } from "@/components/SenpaiLink";
@@ -48,7 +49,7 @@ export default function Home() {
           </h1>
 
           <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-[var(--muted)] md:text-[16px]">
-            予備校講師、現役早慶生が対応。添削・採点の結果には弱点分析もセットで返ります。
+            大学受験の英作文・小論文添削、過去問採点に対応。慶應・早稲田・MARCH周辺の志望校向けに、予備校講師・現役早慶生が弱点分析つきで返します。
           </p>
 
           {/* ↓ デザイン修正: CTAボタン（赤アクセント） */}
@@ -90,6 +91,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <ExamSupportSection />
 
       {/* ↓ デザイン修正: 使い方セクション */}
       <section className="border-y border-[var(--line)] bg-white px-4 py-14 md:py-16">

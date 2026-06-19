@@ -1,18 +1,27 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { JsonLd } from "@/components/JsonLd";
 import { ServicePageShell } from "@/components/ServicePageShell";
-import { TensakuApp } from "@/components/TensakuApp";
+import { TensakuAppLoader } from "@/components/TensakuAppLoader";
 import { getService } from "@/lib/services";
 import { breadcrumbJsonLd, buildPageMetadata, serviceJsonLd } from "@/lib/seo";
 
 const service = getService("tensaku");
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "小論文・英作文添削",
+  title: "大学受験 小論文・英作文添削",
   description:
-    "小論文・英作文をオンラインで添削。課題理解・構成・文法・語彙を数値化。弱点分析・改善提案もセットで返却。",
+    "大学受験の小論文・英作文をオンラインで添削。慶應・早稲田・MARCH向けに課題理解・構成・文法・語彙を数値化。弱点分析・改善提案つき。",
   path: "/tensaku",
-  keywords: ["小論文 添削", "英作文 添削", "大学受験 添削"],
+  keywords: [
+    "大学受験 添削",
+    "小論文 添削",
+    "英作文 添削",
+    "早慶 添削",
+    "慶應 英作文",
+    "早稲田 小論文",
+    "MARCH 添削",
+  ],
 });
 
 export default function TensakuPage() {
@@ -32,7 +41,9 @@ export default function TensakuPage() {
           }),
         ]}
       />
-      <TensakuApp />
+      <Suspense fallback={<p className="text-sm text-[var(--muted)]">読み込み中…</p>}>
+        <TensakuAppLoader />
+      </Suspense>
     </ServicePageShell>
   );
 }

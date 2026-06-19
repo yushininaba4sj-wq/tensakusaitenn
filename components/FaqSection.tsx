@@ -10,7 +10,7 @@ export function FaqSection() {
         </p>
         <h2 className="mt-2 text-[24px] font-bold md:text-[28px]">よくある質問</h2>
         <p className="mt-3 text-[14px] leading-relaxed text-[var(--muted)]">
-          {SITE.nameJa}の英作文添削・小論文添削・過去問採点について、よくある質問をまとめました。
+          {SITE.nameJa}の大学受験向け英作文添削・小論文添削・過去問採点について、よくある質問をまとめました。
         </p>
         <dl className="mt-8 space-y-4">
           {FAQ_ITEMS.map((item) => (

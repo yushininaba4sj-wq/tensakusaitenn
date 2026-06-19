@@ -15,8 +15,8 @@ const TABS: { id: TensakuType; label: string }[] = [
   { id: "eibun", label: "英作文" },
 ];
 
-export function TensakuApp() {
-  const [type, setType] = useState<TensakuType>("shoronbun");
+export function TensakuApp({ initialType = "shoronbun" }: { initialType?: TensakuType }) {
+  const [type, setType] = useState<TensakuType>(initialType);
 
   return (
     <div>

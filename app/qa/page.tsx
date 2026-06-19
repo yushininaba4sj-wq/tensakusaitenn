@@ -8,11 +8,17 @@ import { breadcrumbJsonLd, buildPageMetadata, serviceJsonLd } from "@/lib/seo";
 const service = getService("qa");
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "わからない質問",
+  title: "大学受験 わからない質問",
   description:
-    "勉強でわからないところをそのまま質問。英語・数学・国語・物理・化学・生物・地学・日本史・世界史・地理・倫理・政経・小論文・総合型選抜に対応。予備校講師、現役早慶生が回答。",
+    "大学受験の勉強でわからないところを質問。英語・数学・国語・理科・社会・小論文・総合型選抜に対応。早慶・MARCH志望の受験生向け。予備校講師、現役早慶生が回答。",
   path: "/qa",
-  keywords: ["受験 質問", "勉強 わからない", "大学受験 Q&A"],
+  keywords: [
+    "大学受験 質問",
+    "受験 質問",
+    "早慶 勉強",
+    "MARCH 受験",
+    "勉強 わからない",
+  ],
 });
 
 export default function QaPage() {

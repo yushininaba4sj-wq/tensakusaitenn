@@ -8,11 +8,18 @@ import { breadcrumbJsonLd, buildPageMetadata, serviceJsonLd } from "@/lib/seo";
 const service = getService("kakomon");
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "過去問採点",
+  title: "大学受験 過去問採点",
   description:
-    "過去問の答案画像を提出して採点。総合得点・設問別得点・部分点・減点理由・合格者平均との差を返却。",
+    "大学受験の過去問答案をオンラインで採点。慶應・早稲田・MARCH向けに総合得点・設問別得点・部分点・減点理由・弱点分析を返却。",
   path: "/kakomon",
-  keywords: ["過去問 採点", "過去問 添削", "大学受験 過去問"],
+  keywords: [
+    "過去問 採点",
+    "大学受験 過去問",
+    "早慶 過去問",
+    "慶應 過去問",
+    "早稲田 過去問",
+    "MARCH 過去問",
+  ],
 });
 
 export default function KakomonPage() {

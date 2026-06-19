@@ -16,6 +16,12 @@ export function SiteFooter() {
               {s.title}
             </Link>
           ))}
+          <Link href="/eibun" className="text-sm font-semibold text-[var(--accent)]">
+            英作文添削
+          </Link>
+          <Link href="/shoronbun" className="text-sm font-semibold text-[var(--accent)]">
+            小論文添削
+          </Link>
         </div>
         <SenpaiLink className="mt-4 inline-block text-sm">
           <SenpaiBrandName />

@@ -4,7 +4,7 @@
 GOUKAKU(tensakusaitenn)の Vercel → Settings → Environment Variables に
 OPERATOR_ALLOWED_EMAILS を設定して再デプロイ：
 
-OPERATOR_ALLOWED_EMAILS=taichiadi1101@gmail.com,<きみの個人Gmail>
+OPERATOR_ALLOWED_EMAILS=taichiadi1101@gmail.com,ysmaru0216@gmail.com
 
 ■ なぜ急ぎ
 app/admin/login は「許可リストが空＝誰でも運営ログインできてしまう」状態だった。
