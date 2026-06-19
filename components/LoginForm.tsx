@@ -9,6 +9,7 @@ import { SenpaiBrandName } from "@/components/SenpaiLink";
 
 type LoginFormProps = {
   allowedEmails?: string[];
+  requireAllowedList?: boolean;
   title?: string;
   description?: string;
   storageKey?: string;
@@ -20,6 +21,7 @@ function normalizeEmail(value: string): string {
 
 export function LoginForm({
   allowedEmails,
+  requireAllowedList = false,
   title = "ログイン",
   description,
   storageKey = "goukaku_last_login_email",
@@ -58,6 +60,7 @@ export function LoginForm({
   }, [storageKey]);
 
   function canUseEmail(targetEmail: string): boolean {
+    if (requireAllowedList && !allowedSet) return false;
     if (!allowedSet) return true;
     return allowedSet.has(normalizeEmail(targetEmail));
   }

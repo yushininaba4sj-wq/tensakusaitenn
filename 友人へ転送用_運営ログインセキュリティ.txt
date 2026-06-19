@@ -1,0 +1,25 @@
+【友人(GOUKAKU担当)へ転送用】GOUKAKUの運営ログインのセキュリティ設定をお願い🙏
+
+■ やってほしいこと
+GOUKAKU(tensakusaitenn)の Vercel → Settings → Environment Variables に
+OPERATOR_ALLOWED_EMAILS を設定して再デプロイ：
+
+OPERATOR_ALLOWED_EMAILS=taichiadi1101@gmail.com,<きみの個人Gmail>
+
+■ なぜ急ぎ
+app/admin/login は「許可リストが空＝誰でも運営ログインできてしまう」状態だった。
+コード側は修正済み（空なら誰も入れない）だが、**本番で env を入れないと運営自身も入れない**ので、必ず上記2件を設定して Redeploy してほしい。
+
+■ 1点お願い
+きみのアドレスは keio.jp（学校ドメイン）じゃなく、個人Gmailにしてほしい。
+理由：卒業で keio.jp が失効すると、運営自身がログインできなくなる＆引継ぎ前に失効すると詰む。長期運用するなら個人Gmail推奨。
+（同じ理由で、SENPAI側で admin 付与した keio.jp も、いずれ個人Gmailに替える方が安全）
+
+最小構成は「オーナー＋きみ」の2つだけでOK。増やすのは後から。個人Gmail決まったら教えて。
+
+■ 運用ルール（月1）
+- 追加/削除 → OPERATOR_ALLOWED_EMAILS を更新 → Redeploy
+- 月1で「今も必要な人だけか」見直し
+- 不要メールはすぐ env から削除
+
+詳細: リポジトリ内 supabase/運営ログイン設定.md
