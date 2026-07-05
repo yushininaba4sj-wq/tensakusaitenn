@@ -34,8 +34,8 @@ export function SubmitForm({
 }: SubmitFormProps) {
   const router = useRouter();
   const { requiresLogin } = useAuthReady();
-  const [preview, setPreview] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [content, setContent] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,8 +67,8 @@ export function SubmitForm({
     let imagePaths: string[] = [];
     let imageNames: string[] = [];
 
-    if (imageFile) {
-      const upload = await uploadSubmissionImages(supabase, user.id, [imageFile]);
+    if (imageFiles.length) {
+      const upload = await uploadSubmissionImages(supabase, user.id, imageFiles);
       if (upload.error) {
         setLoading(false);
         setError(upload.error);
@@ -136,32 +136,55 @@ export function SubmitForm({
           />
         </label>
         <label className="block">
-          <span className="text-sm font-semibold">{imageLabel}</span>
+          <span className="text-sm font-semibold">{imageLabel}（最大5枚）</span>
           <input
             type="file"
             accept="image/*"
+            multiple
             className="mt-2 block w-full text-sm file:mr-3 file:rounded-full file:border-0 file:bg-[var(--accent)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white"
             onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (!file) {
-                setPreview(null);
-                setImageFile(null);
-                return;
-              }
-              setImageFile(file);
-              const reader = new FileReader();
-              reader.onload = () =>
-                setPreview(typeof reader.result === "string" ? reader.result : null);
-              reader.readAsDataURL(file);
+              const picked = Array.from(e.target.files ?? []);
+              if (!picked.length) return;
+              const next = [...imageFiles, ...picked].slice(0, 5);
+              setImageFiles(next);
+              void Promise.all(
+                next.map(
+                  (file) =>
+                    new Promise<string>((resolve) => {
+                      const reader = new FileReader();
+                      reader.onload = () =>
+                        resolve(typeof reader.result === "string" ? reader.result : "");
+                      reader.readAsDataURL(file);
+                    }),
+                ),
+              ).then(setPreviews);
+              e.target.value = "";
             }}
           />
-          {preview && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={preview}
-              alt="プレビュー"
-              className="mt-3 max-h-48 rounded-lg border border-[var(--line)]"
-            />
+          {previews.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {previews.map((src, i) => (
+                <div key={i} className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={src}
+                    alt={`プレビュー${i + 1}`}
+                    className="h-24 w-24 rounded-lg border border-[var(--line)] object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImageFiles((files) => files.filter((_, idx) => idx !== i));
+                      setPreviews((items) => items.filter((_, idx) => idx !== i));
+                    }}
+                    className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-xs text-white"
+                    aria-label="削除"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
         </label>
         {error && <p className="text-sm text-[var(--accent)]">{error}</p>}
