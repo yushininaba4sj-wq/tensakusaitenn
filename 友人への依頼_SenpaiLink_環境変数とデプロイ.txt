@@ -1,0 +1,30 @@
+【SENPAI LINK（senpailink.vercel.app）担当の友人へ転送用】
+
+GOUKAKU LINK 側の修正はデプロイ済みです。
+SENPAI LINK 本番（senpailink.vercel.app）で、以下2点を Vercel に設定してから再デプロイをお願いします。
+
+■ 1. RESEND_FROM_EMAIL（メール送信失敗の直接原因）
+Vercel → senpailink プロジェクト → Settings → Environment Variables
+
+| 変数名 | 値 |
+|--------|-----|
+| RESEND_API_KEY | Resend ダッシュボードの API キー（未設定なら追加） |
+| RESEND_FROM_EMAIL | 認証済みドメインの送信元。例: `Senpai Link <noreply@あなたのドメイン>` |
+
+※ RESEND_FROM_EMAIL がないと、管理画面で「保存と通知は完了しましたが、メール送信に失敗しました。」と出ます。
+※ onboarding@resend.dev だけでは生徒メールには届きません。
+
+■ 2. OPS_SLACK_WEBHOOK_URL（Slack 通知）
+| 変数名 | 値 |
+|--------|-----|
+| OPS_SLACK_WEBHOOK_URL | Slack Incoming Webhook URL（GOUKAKU LINK と同じ URL で OK） |
+
+■ 3. コードデプロイ
+yushininaba4sj-wq/juku-matching に修正版を push します（または PR をマージ）。
+反映内容:
+- 生徒・返信とも最大5枚写真
+- 管理画面の返信画像 UI / メール失敗の明示
+- Slack + LINE 通知
+- 管理者ログイン（メール記憶・セッション自動遷移）
+
+設定後 Redeploy お願いします。
